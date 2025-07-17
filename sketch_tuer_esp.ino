@@ -2,13 +2,17 @@
 ///                 EXPLANATION              ///
 ////////////////////////////////////////////////
 /*
-Red cable from the doorbell connects to Pin 5 on the ESP32 (GPIO 46). Brown wire connects to ground pin.
-
 Doorbell 
-  - Red     -> 3.3 V from LED
-  - Brown   -> Ground (Blinking)
+  - Red     -> 3.3 V from big LED
+  - Brown   -> 3.3 V Blinking from small LED
   - Blue    -> Telephone icon button
   - Yellow  -> Key icon button 
+
+Header J3 on the Wi-Fi LoRa 32 Pin Map ( Left Side )
+  Pin 1 = Ground
+  Pin 5 = Brown
+  Pin 6 = Blue
+  Pin 7 = Yellow
 */
 
 
@@ -27,10 +31,10 @@ Doorbell
 // GPIO
 #include "driver/gpio.h"
 
-#define PIN5 46 // Input <- LED +
-#define PIN6 45 // Output -> Telephone button / Accept doorbell
-#define PIN7 42 // Output -> Key button / Open door
-#define GND  41 // Switchable GROUND
+#define PIN5 46 
+#define PIN6 45 
+#define PIN7 42 
+#define GND  41
 
 
 ////////////////////////////////////////////////
@@ -75,7 +79,6 @@ void ha_callback(HAEntity *entity, char *topic, byte *payload, unsigned int leng
 
 static SSD1306Wire  display(0x3c, 500000, SDA_OLED, SCL_OLED, GEOMETRY_128_64, RST_OLED); // addr , freq , i2c group , resolution , rst
 
-int pin46 = 0;
 bool doorbell_triggered = false;
 bool last_doorbell_state = LOW;
 bool doorbell_state = LOW;
@@ -189,26 +192,23 @@ void loop() {
       delay(1000);
     }
 
-  doorbell_state = digitalRead(PIN5);
-  //Serial.println("doorbell_state : ");
-  //Serial.println(pin46);
+  doorbell_state = digitalRead(PIN5); // Read the small LED
 
   unsigned long now = millis();
 
+  // Doorbell triggers when Pin5 goes LOW and last state was HIGH
   if (doorbell_state == LOW && last_doorbell_state == HIGH && !doorbell_triggered) 
   {
     Serial.println("Doorbell!");
     doorbell_triggered = true;
-    ha_sensor_doorbell.setState(doorbell_triggered);
-    //Serial.println("Set ha_sensor_doorbell to : ");
-    //Serial.println(doorbell_triggered);
+    ha_sensor_doorbell.setState(doorbell_triggered); // Shares it to mqtt sensor
   }
 
   if (doorbell_state == HIGH) 
   {
     if (last_doorbell_state == LOW) 
     {
-      lastLowTime = now;
+      lastLowTime = now; // Save the current timer amount
      // Serial.println("Timer started..");
     }
     if (now - lastLowTime > resetTime) 
@@ -223,7 +223,7 @@ if (last_doorbell_state != doorbell_state)
   last_doorbell_state = doorbell_state;
 }
   
-  // clear the display
+  // Clear the display
   display.clear();
 
   if (doorbell_triggered == false) 
