@@ -5,16 +5,15 @@
 Doorbell 
   - Red     -> 3.3 V from big LED
   - Brown   -> 3.3 V Blinking from small LED
-  - Blue    -> Telephone icon button
-  - Yellow  -> Key icon button 
+  - Black->White    -> Telephone icon button
+  - Rot->Orange  -> Key icon button 
 
 Header J3 on the Wi-Fi LoRa 32 Pin Map ( Left Side )
   Pin 1 = Ground
   Pin 5 = Brown
-  Pin 6 = Blue
-  Pin 7 = Yellow
+  Pin 6 = Black->White
+  Pin 7 = Orange
 */
-
 
 // For a connection via I2C using the Arduino Wire include:
 #include <Wire.h>               
